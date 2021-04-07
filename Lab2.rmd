@@ -1,0 +1,268 @@
+---
+title: "Лабораторная 2"
+author: "Виноградов Александр"
+date: "03 04 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Вариант 3
+Задачи:
+Первый график постройте на данных по импорту продовольственных товаров в РФ в графической  системе ggplot2.  Данные  за  период  с  января  2010  по  декабрь  2020  гг. необходимо загрузить из базы данных международной торговли UN COMTRADE, как было показано  в  практиках  1-2.  Нас  интересует  эффект  от  введения  продовольственных санкций15.Второй график постройте на данных, собранных в упражнении No1, в графической системе lattice.  Тип  графика  может  быть  любым,  при  этом  обязательно  должна присутствовать разбивка по категориям (например: годы, производители товара, жанры фильмов).
+
+Товар: живая рыба, код 0301. График: коробчатые диаграммы суммарной массы поставок в сентябре-декабре по годам. Цветом показать четыре группы стран-поставщиков: США, страны латинской америки, страны ЕС и все остальные. Пропуски заменить на модельные значения.
+
+## График 1
+```{r}
+# Библиотека для работы с JSON
+library('rjson')
+# Адрес справочника по странам UN COMTRADE
+fileURL <- "http://comtrade.un.org/data/cache/partnerAreas.json"
+#Загрузка данных из формата JSON
+reporters <- fromJSON(file = fileURL)
+is.list(reporters)
+
+# Соединяем элементы списка построчно
+reporters <- t(sapply(reporters$results, rbind))
+dim(reporters)
+
+# Превращаем в DataFrame
+reporters <- as.data.frame(reporters)
+head(reporters)
+
+# Код Россиийской Федерации
+names(reporters) <- c('State.Code', 'State.Name.En')
+reporters[reporters$State.Name.En == "Russian Federation", ]$State.Code
+
+# Код России: 643, воспользуемся им в дальнейшем
+
+# функция, реализующая API (источник: UN COMTRADE)
+source("https://raw.githubusercontent.com/aksyuk/R-data/master/API/comtrade_API.R")
+
+# Выгружаем данные за каждый год
+# Код товара: 0301
+for (i in 2010:2020){
+  Sys.sleep(5)
+  s1 <- get.Comtrade(r = 'all', p = 643,
+                     ps = as.character(i), freq = "M",
+                     rg = '1', cc = '0301',
+                     fmt = 'csv')
+  # Имя файла для сохранения
+  file.name <- paste('./data/comtrade_', i, '.csv', sep = '')
+  # Запись данных в файл
+  write.csv(s1$data, file.name, row.names = F)
+  print(paste("Данные за", i, "год загружены в файл",file.name, "!"))
+  write(paste('Файл',
+              paste('comtrade_', i, '.csv', sep = ''),
+              'загржен', Sys.time()), file = './data/download.log', append=T)
+}
+```
+
+```{r}
+library('stringr')
+library('ggplot2')
+library('gridExtra')
+library('data.table')
+
+df <- read.csv('./data/comtrade_2010.csv', header = TRUE, sep = ',')
+for (i in 2011:2020){
+  # Считываем данные из .csv файла
+  df.temp <- read.csv(paste('./data/comtrade_', i, '.csv', sep=''), header = T, sep=',')
+  # Заполняем основной дата фрейм
+  df <- rbind(df, df.temp)
+}
+df
+
+usa <- 'United States of America'
+eu <- 'EU-28'
+
+df <- df[, c(2, 4, 10, 30, 32)]
+df <- data.table(df)
+
+# Замена пропусков (NA) на модельные значения
+# Переменные: масса поставки и ее стоимость
+x <- df$Trade.Value..US..
+y <- df$Netweight..kg.
+
+# Оценка регрессии с помощью МНК
+fit <- lm(y ~ x)
+summary(fit)
+
+# R - квадрат
+R.sq <- summary(fit)$r.squared
+
+# Строим график разброса переменных X и Y с линией регрессии
+plot(x, y,
+     xlab = 'Стоимость поставки, долл.США',
+     ylab = 'Масса поставки, кг',
+     pch = 21, col = rgb(0, 0, 0, alpha = 0.4), 
+     bg = rgb(0, 0, 0, alpha = 0.4))
+abline(fit, col = rgb(0, 0, 1), lwd = 2)
+mtext(paste('Прямая линейная зваимосвязь, R^2=',
+            round(R.sq*100, 1),
+            '%', sep = ''),
+      side = 3, line = 1)
+
+# Координаты пропущенных y по оси x
+NAs <- df[is.na(Netweight..kg.), Trade.Value..US..]
+points(x = NAs, y = rep(0, length(NAs)),
+       col = 'red', pch = '|')
+
+# Рассмотрим участок, на котором значения по осям лежат в интервалах от 0 до 5 000
+plot(x, y, 
+     xlab = 'Стоимость поставки, долл.США', 
+     ylab = 'Масса поставки, кг',
+     pch = 21, col = rgb(0, 0, 0, alpha = 0.4), 
+     bg = rgb(0, 0, 0, alpha = 0.4),
+     xlim = c(0, 5000), ylim = c(0, 5000))
+abline(fit, col = rgb(0, 0, 1), lwd = 2)
+points(x = NAs, y = rep(0, length(NAs)), 
+ col = 'red', pch = '|') 
+
+# Пробуем регрессию на логарифмах
+y[y == 0] <- NA
+fit.log <- lm(log(y) ~ log(x))
+summary(fit.log)
+
+R.sq.log <- summary(fit.log)$r.squared 
+
+# Построим график разброса
+plot(log(x), log(y), 
+     xlab = 'Логарифмы стоимости поставки', 
+     ylab = 'Логарифмы массы поставки',
+     pch = 21, col = rgb(0, 0, 0, alpha = 0.4), 
+     bg = rgb(0, 0, 0, alpha = 0.4))
+# Добавляем прямую регрессии на график
+abline(fit.log, col = rgb(0, 0, 1), lwd = 2)
+# Добавляем название графика
+mtext(paste('Прямая линейная взаимосвязь, R^2=',
+      round(R.sq.log*100, 1),
+      '%', sep = ''), 
+      side = 3, line = 1)
+points(x = log(NAs), y = rep(0, length(NAs)), 
+       col = 'red', pch = '|')
+
+# Новый столбец, в котором будут заполнены пропуски
+df[, Netweight..kg.model := Netweight..kg.]
+
+# Прогноз по модели на логарифмах
+y.model.log <- predict(fit.log,
+                       newdata = data.frame(x = NAs))
+
+# Исходные единицы измерения Y
+y.model <- exp(y.model.log)
+
+# Заменяем пропуски модельными значениями
+df[is.na(Netweight..kg.model),
+   Netweight..kg.model := round(y.model, 0)]
+
+# результат
+df <- df[, c(1,2,3,6)]
+df
+
+new.df <- data.frame()
+for (m in month.name[9:12]){
+  new.df <- rbind(new.df, df[str_detect(df$Period.Desc., m), ])
+}
+new.df
+
+
+new.df.countries <- data.frame()
+new.df.countries <- rbind(new.df.countries, cbind(new.df[new.df$Reporter == usa, ], Countries = 'USA'))
+new.df.countries <- rbind(new.df.countries, cbind(new.df[new.df$Reporter == eu, ], Countries = 'EU-28'))
+new.df.countries <- rbind(new.df.countries, cbind(new.df[!(new.df$Reporter == usa) & !(new.df$Reporter == eu), ], Countries = 'Other countries'))
+new.df.countries
+
+new.df.countries <- new.df.countries[new.df.countries$Netweight..kg.model < 10000, ]
+
+png('ggplot.png', width = 1000, height= 1000)
+ggplot(data = new.df.countries, aes(x = Countries, y = Netweight..kg.model, group = Countries, color = Countries)) +
+  geom_boxplot() +
+  scale_color_manual(values = c('red', 'blue', 'green'),
+                     name = "Группы стран-поставщиков:") +
+  labs(title = 'Коробчатые диаграммы суммарной массы поставок',
+       x = 'Страны', y = 'Масса')
+dev.off()
+```
+
+## График 2
+```{r}
+library('XML')                 # разбор XML-файлов
+library('RCurl')               # работа с HTML-страницами
+library('rjson')               # чтение формата JSON
+library('rvest')               # работа с DOM сайта
+library('dplyr')               # инструменты трансформирования данных
+library('httr')
+library('stringr')
+
+# ссылка на сайт кинопоиска, с топ 20 фильмами 2017 года
+url <- 'https://www.kinopoisk.ru/lists/navigator/2017/?quick_filters=films&limit=20&tab=best'
+
+html <- GET(url)
+html <- content(html, 'text')
+
+parsed_html <- htmlParse(html, useInternalNodes = T, encoding = "UTF-8")
+name.film <- xpathSApply(parsed_html, '//p[@class="selection-film-item-meta__name"]', xmlValue)
+name.film
+
+original.name.film <- xpathSApply(parsed_html, '//p[@class="selection-film-item-meta__original-name"]', xmlValue)
+original.name.film
+
+genre.film <- xpathSApply(parsed_html, '//span[@class="selection-film-item-meta__meta-additional-item"]', xmlValue)
+genre.film
+
+rating.film <- xpathSApply(parsed_html, '//span[@data-tid="59e7b831"]', xmlValue)
+rating.film <- as.numeric(rating.film)
+rating.film
+
+vote.film <- xpathSApply(parsed_html, '//span[@class="rating__count"]', xmlValue)
+# Избавляемся от пробелов
+vote.film <- gsub(pattern = '\\s', replacement = "", x = vote.film)
+vote.film <- as.numeric(vote.film)
+vote.film
+
+df <- data.frame(name = name.film, original_name = original.name.film,
+                 genre = genre.film[c(F, T)], rating = rating.film[c(T, F)], vote = vote.film)
+
+data.dir <- './data'
+
+# Создаем директорию для данных
+if (!file.exists(data.dir)) {
+  dir.create(data.dir)
+}
+
+# Создаём файл с логом загрузок
+log.filename <- './data/download.log'
+if (!file.exists(log.filename)) file.create(log.filename)
+
+# Загружаем данные в .csv файл
+write.csv(df, file = './data/kinopoisk.csv', row.names = FALSE)
+write(paste('Файл "kinopoisk.csv" записан!', Sys.time()), file = log.filename, append = TRUE)
+```
+
+```{r}
+library('lattice')
+
+data <- read.csv('./data/kinopoisk.csv', header = T, sep = ',')
+data
+
+genres <- array()
+for (genre in strsplit(as.character(data$genre), ", ")){
+  genres <- append(genres, genre[1])
+}
+genres <- genres[2:21]
+
+data <- cbind(data, data.frame(Genres = factor(genres)))
+data
+# График разброса, если жанр один
+png('lattice.png', width=1000, height=1000)
+xyplot(vote ~ rating, data = data, auto.key = list(space = 'right'),
+       groups = Genres,
+       ylab = 'Количество голосов',
+       xlab = 'Рейтинг фильма',
+       main = 'График разброса количества голосов от рейтинга')
+dev.off()
+```

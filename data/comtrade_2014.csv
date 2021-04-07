@@ -1,0 +1,17 @@
+"Classification","Year","Period","Period.Desc.","Aggregate.Level","Is.Leaf.Code","Trade.Flow.Code","Trade.Flow","Reporter.Code","Reporter","Reporter.ISO","Partner.Code","Partner","Partner.ISO","X2nd.Partner.Code","X2nd.Partner","X2nd.Partner.ISO","Customs.Proc..Code","Customs","Mode.of.Transport.Code","Mode.of.Transport","Commodity.Code","Commodity","Qty.Unit.Code","Qty.Unit","Qty","Alt.Qty.Unit.Code","Alt.Qty.Unit","Alt.Qty","Netweight..kg.","Gross.weight..kg.","Trade.Value..US..","CIF.Trade.Value..US..","FOB.Trade.Value..US..","Flag"
+"HS",2014,201402,"February 2014",4,0,1,"Imports",112,"Belarus",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,500,NA,25200,NA,NA,0
+"HS",2014,201404,"April 2014",4,0,1,"Imports",112,"Belarus",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,450,NA,45600,NA,NA,0
+"HS",2014,201406,"June 2014",4,0,1,"Imports",112,"Belarus",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,200,NA,7800,NA,NA,0
+"HS",2014,201410,"October 2014",4,0,1,"Imports",112,"Belarus",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,2280,NA,53400,NA,NA,0
+"HS",2014,201401,"January 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,427,NA,2530,NA,NA,0
+"HS",2014,201402,"February 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,487,NA,1820,NA,NA,0
+"HS",2014,201403,"March 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,11991,NA,111940,NA,NA,0
+"HS",2014,201405,"May 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,2017,NA,11212,NA,NA,0
+"HS",2014,201406,"June 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,492,NA,4283,NA,NA,0
+"HS",2014,201407,"July 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,85,NA,128,NA,NA,0
+"HS",2014,201408,"August 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,4,NA,1778,NA,NA,0
+"HS",2014,201409,"September 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,1540,NA,14885,NA,NA,0
+"HS",2014,201410,"October 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,137755,NA,93793,NA,NA,0
+"HS",2014,201411,"November 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,730,NA,17836,NA,NA,0
+"HS",2014,201412,"December 2014",4,0,1,"Imports",398,"Kazakhstan",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,559,NA,12155,NA,NA,0
+"HS",2014,201412,"December 2014",4,0,1,"Imports",446,"China, Macao SAR",NA,643,"Russian Federation",NA,NA,NA,NA,NA,NA,NA,NA,301,"Fish; live",NA,NA,NA,NA,NA,NA,100,NA,1377,NA,NA,0
